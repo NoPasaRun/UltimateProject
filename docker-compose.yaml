@@ -8,12 +8,16 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ultimate-net
 
   redis:
     container_name: ultimate-redis
     image: redis:7
     volumes:
       - redis_data:/data
+    networks:
+      - ultimate-net
 
   auth:
     container_name: ultimate-auth
@@ -26,20 +30,12 @@ services:
     environment:
       - WATCHFILES_FORCE_POLLING=true
     volumes:
-      - ./auth_service:/app
+      - ./auth_service/src:/app
     depends_on:
       - redis
       - postgres
-
-  client:
-    container_name: ultimate-client
-    build:
-      context: .
-      dockerfile: client_service/Dockerfile
-      args:
-        - STAGE=$STAGE
-    volumes:
-      - ./client_service:/app
+    networks:
+      - ultimate-net
 
   api:
     container_name: ultimate-api
@@ -49,8 +45,10 @@ services:
       args:
         - STAGE=$STAGE
     volumes:
-      - ./api_service:/app
+      - ./api_service/src:/app/src
       - media_data:/media
+    networks:
+      - ultimate-net
 
   server:
     container_name: ultimate-server
@@ -65,12 +63,14 @@ services:
         - STAGE=$STAGE
     volumes:
       - media_data:/media
+      - ./client:/app
     depends_on:
       - auth
       - api
-      - client
     ports:
       - "80:80"
+    networks:
+      - ultimate-net
 
 volumes:
   postgres_data:
@@ -78,9 +78,10 @@ volumes:
   media_data:
 
 networks:
-  vipnet:
+  ultimate-net:
     driver: bridge
+    name: ultimate-net
     ipam:
       config:
-        - subnet: 172.18.0.0/16
-          gateway: 172.18.0.1
+        - subnet: 171.17.0.0/16
+          gateway: 171.17.0.1

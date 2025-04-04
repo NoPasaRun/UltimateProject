@@ -2,11 +2,10 @@ FROM python:3.11
 
 ARG STAGE=${STAGE}
 
-COPY config/${STAGE}/.env ./
 COPY requirements/${STAGE}/requirements.txt ./
+COPY config/${STAGE}/.env ./
 
 RUN pip3 install -r requirements.txt
-WORKDIR /app
 
-ENTRYPOINT export $(xargs < .env) && python manage.py makemigrations && \
-           python manage.py migrate && python manage.py runserver
+ENTRYPOINT export $(xargs < .env) && python app/manage.py makemigrations && \
+           python app/manage.py migrate && python app/manage.py runserver 0.0.0.0:2288
