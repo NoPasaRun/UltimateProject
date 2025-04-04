@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: auth_service/Dockerfile
       args:
-        - STAGE=$STAGE
+        - STAGE=${STAGE:-dev}
     restart: on-failure
     environment:
       - WATCHFILES_FORCE_POLLING=true
@@ -43,7 +43,7 @@ services:
       context: .
       dockerfile: api_service/Dockerfile
       args:
-        - STAGE=$STAGE
+        - STAGE=${STAGE:-dev}
     volumes:
       - ./api_service/src:/app/src
       - media_data:/media
@@ -60,7 +60,7 @@ services:
       context: .
       dockerfile: proxy_service/Dockerfile
       args:
-        - STAGE=$STAGE
+        - STAGE=${STAGE:-dev}
     volumes:
       - media_data:/media
       - ./client:/app
